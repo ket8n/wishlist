@@ -15,7 +15,7 @@ export const {
   session: { strategy: "jwt" },
   ...authConfig,
   callbacks: {
-    async jwt({ token, session }) {
+    async jwt({ token }) {
       if (!token.sub) return token;
 
       const existingUser = await getUserById(token.sub);
