@@ -1,5 +1,6 @@
 import { deleteWish, getWishById, updateWish } from "@/actions/wish";
 import { auth } from "@/auth";
+import { UpdateWishSchema } from "@/lib/wishValidations";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -45,7 +46,12 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
-  const updatedWish = await updateWish(id, body);
+  const parsed = UpdateWishSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.errors }, { status: 400 });
+  }
+
+  const updatedWish = await updateWish(id, parsed.data);
 
   return NextResponse.json({
     message: "Wish updated successfully!",

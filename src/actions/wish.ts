@@ -1,5 +1,6 @@
 "use server";
 
+import { NextResponse } from "next/server";
 import { prisma } from "../../prisma/prisma";
 import { WishStatus, PriorityLevel } from "@/generated/prisma";
 
@@ -48,6 +49,7 @@ export async function updateWish(
     fulfilledOn: Date;
   }>
 ) {
+  // TODO: invalid id's response
   return await prisma.wish.update({
     where: { id },
     data: { ...data, updatedAt: new Date() },
