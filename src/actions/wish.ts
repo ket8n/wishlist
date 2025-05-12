@@ -1,6 +1,5 @@
 "use server";
 
-import { NextResponse } from "next/server";
 import { prisma } from "../../prisma/prisma";
 import { WishStatus, PriorityLevel } from "@/generated/prisma";
 
