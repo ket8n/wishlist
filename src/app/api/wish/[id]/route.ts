@@ -43,7 +43,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const deletedWish = await deleteWish(id);
+    const deletedWish = await deleteWish(id, session.user.id);
 
     return NextResponse.json({
       message: "Wish deleted successfully!",
@@ -51,7 +51,12 @@ export async function DELETE(
     });
   } catch (err: unknown) {
     if (err instanceof Error) {
-      return NextResponse.json({ message: err.message }, { status: 500 });
+      const status =
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not found")
+          ? 403
+          : 500;
+      return NextResponse.json({ message: err.message }, { status });
     }
 
     return NextResponse.json(

@@ -51,7 +51,7 @@ export async function updateWish(
 ) {
   const wish = await prisma.wish.findUnique({ where: { id } });
   if (!wish || wish.userId !== userId) {
-    throw new Error("Unauthorized or Not found");
+    throw new Error("Unauthorized or not found");
   }
 
   return await prisma.wish.update({
@@ -60,6 +60,12 @@ export async function updateWish(
   });
 }
 
-export async function deleteWish(id: string) {
+export async function deleteWish(id: string, userId: string) {
+  const wish = await prisma.wish.findUnique({ where: { id } });
+
+  if (!wish || wish.userId !== userId) {
+    throw new Error("Unauthorized or not found");
+  }
+
   return await prisma.wish.delete({ where: { id } });
 }
