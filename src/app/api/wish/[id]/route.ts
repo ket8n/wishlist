@@ -16,7 +16,7 @@ export async function GET(
     const { id } = await params;
     const wish = await getWishById(id);
 
-    if (!wish)
+    if (!wish || wish.userId !== session.user.id)
       return NextResponse.json({ message: "Wish not found!" }, { status: 404 });
 
     return NextResponse.json(wish);
