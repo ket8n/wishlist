@@ -38,6 +38,7 @@ export async function getWishById(id: string) {
 
 export async function updateWish(
   id: string,
+  userId: string,
   data: Partial<{
     name: string;
     description: string;
@@ -48,7 +49,11 @@ export async function updateWish(
     fulfilledOn: Date;
   }>
 ) {
-  // TODO: invalid id's response
+  const wish = await prisma.wish.findUnique({ where: { id } });
+  if (!wish || wish.userId !== userId) {
+    throw new Error("Unauthorized or Not found");
+  }
+
   return await prisma.wish.update({
     where: { id },
     data: { ...data, updatedAt: new Date() },

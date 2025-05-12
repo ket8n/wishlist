@@ -79,7 +79,7 @@ export async function PATCH(
       return NextResponse.json({ error: parsed.error.errors }, { status: 400 });
     }
 
-    const updatedWish = await updateWish(id, parsed.data);
+    const updatedWish = await updateWish(id, session.user.id, parsed.data);
 
     return NextResponse.json({
       message: "Wish updated successfully!",
@@ -87,7 +87,12 @@ export async function PATCH(
     });
   } catch (err: unknown) {
     if (err instanceof Error) {
-      return NextResponse.json({ message: err.message }, { status: 500 });
+      const status =
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not found")
+          ? 403
+          : 500;
+      return NextResponse.json({ message: err.message }, { status });
     }
 
     return NextResponse.json(
