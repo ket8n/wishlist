@@ -22,14 +22,12 @@ export default auth(async (req) => {
     nextUrl.pathname.startsWith(route)
   );
 
-  const baseUrl = `${nextUrl.protocol || "http:"}//${req.headers.get("host")}`;
-
   if (isLoggedIn && isAuthRoute) {
-    return NextResponse.redirect(`${baseUrl}/dashboard`);
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   if (!isLoggedIn && isProtectedRoute) {
-    return NextResponse.redirect(`${baseUrl}/login`);
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   return NextResponse.next();
