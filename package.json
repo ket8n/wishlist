@@ -10,7 +10,10 @@
     "prepush": "npx tsc --noEmit && npx next lint && npm run build"
   },
   "prisma": {
-    "schema": "./prisma/schema.prisma"
+    "binaryTargets": [
+      "native",
+      "rhel-openssl-3.0.x"
+    ]
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
