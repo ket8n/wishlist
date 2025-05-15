@@ -7,13 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "prepush": "npx tsc --noEmit && npx next lint && npm run build"
-  },
-  "prisma": {
-    "binaryTargets": [
-      "native",
-      "rhel-openssl-3.0.x"
-    ]
+    "prepush": "npx tsc --noEmit && npx next lint && npm run build",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
