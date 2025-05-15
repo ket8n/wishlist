@@ -9,6 +9,9 @@
     "lint": "next lint",
     "prepush": "npx tsc --noEmit && npx next lint && npm run build"
   },
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
+  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
     "@tailwindcss/postcss": "^4.1.4",
