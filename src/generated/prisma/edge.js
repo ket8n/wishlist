@@ -169,8 +169,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
-        "native": true
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -178,7 +177,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
+    "rootEnvPath": "../../../.env",
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
@@ -197,8 +196,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name          String\n  email         String    @unique\n  emailVerified DateTime?\n  password      String?\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  accounts      Account[]\n  Wish          Wish[]\n}\n\nmodel Account {\n  id                String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  userId            String  @db.ObjectId\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String? @db.String\n  access_token      String? @db.String\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String? @db.String\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id])\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Wish {\n  id           String        @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name         String\n  description  String\n  links        String[]\n  status       WishStatus    @default(PENDING)\n  priority     PriorityLevel @default(MEDIUM)\n  isPublic     Boolean       @default(false)\n  createdAt    DateTime      @default(now())\n  updatedAt    DateTime      @updatedAt\n  fullfilledOn DateTime?\n\n  userId String @db.ObjectId\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nenum WishStatus {\n  PENDING\n  COMPLETED\n  BOUGHT\n  REJECTED\n}\n\nenum PriorityLevel {\n  LOW\n  MEDIUM\n  HIGH\n}\n",
-  "inlineSchemaHash": "fdc1ef40375495700a526489928da6829c99eb19f00d14ed5ebce237c7c964fc",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name          String\n  email         String    @unique\n  emailVerified DateTime?\n  password      String?\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  accounts      Account[]\n  Wish          Wish[]\n}\n\nmodel Account {\n  id                String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  userId            String  @db.ObjectId\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String? @db.String\n  access_token      String? @db.String\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String? @db.String\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id])\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Wish {\n  id           String        @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name         String\n  description  String\n  links        String[]\n  status       WishStatus    @default(PENDING)\n  priority     PriorityLevel @default(MEDIUM)\n  isPublic     Boolean       @default(false)\n  createdAt    DateTime      @default(now())\n  updatedAt    DateTime      @updatedAt\n  fullfilledOn DateTime?\n\n  userId String @db.ObjectId\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nenum WishStatus {\n  PENDING\n  COMPLETED\n  BOUGHT\n  REJECTED\n}\n\nenum PriorityLevel {\n  LOW\n  MEDIUM\n  HIGH\n}\n",
+  "inlineSchemaHash": "3a59dc492c94c418bb60d0191164a1ae02bc654bd5fb231efac619214be51bad",
   "copyEngine": true
 }
 config.dirname = '/'

@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/**.ts": {
+      "includeFiles": "src/generated/prisma/**"
+    },
+    "app/**/page.ts": {
+      "includeFiles": "src/generated/prisma/**"
+    }
+  }
+}
