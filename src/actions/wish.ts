@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "../../prisma/prisma";
+import { prisma } from "@/../prisma/prisma";
 import { WishStatus, PriorityLevel } from "@/generated/prisma";
 
 export async function createWish(data: {
