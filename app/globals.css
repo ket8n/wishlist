@@ -1,0 +1,354 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens — docs/DESIGN_SPEC.md §4.
+ * Dark is not an inversion: every dark value is picked independently.
+ */
+:root {
+  color-scheme: light;
+
+  /* §4.1 surfaces and structure */
+  --bg-page: #f3f4f6;
+  --bg-chrome: #ffffff;
+  --bg-card: #ffffff;
+  --bg-sunken: #f7f8fa;
+  --bg-bar: #fafbfc;
+  --bg-input: #ffffff;
+  --bg-sheet: #ffffff;
+  --bg-media: #f5f6f8;
+  --border-default: #e4e7ec;
+  --border-subtle: #eef0f3;
+  --border-control: #dfe3ea;
+  --border-dialog: #dfe3ea;
+  --border-dashed: #d3d8e0;
+
+  /* §4.2 text */
+  --text: #101317;
+  --text-body: #101317;
+  --text-secondary: #454e5c;
+  --text-muted: #5f6773;
+  --text-faint: #8a919c;
+  --placeholder: #5f6773;
+
+  /* §4.3 accent */
+  --brand: #4f5f9e;
+  --brand-fg: #3a4a7a;
+  --brand-strong: #2b3550;
+  --brand-tint: #eceff7;
+  --brand-underline: #b6c0da;
+
+  /* §4.4 status */
+  --status-pending-fg: #3a4a7a;
+  --status-pending-bg: #e8ecf7;
+  --status-bought-fg: #2f6b4f;
+  --status-bought-bg: #e3efe8;
+  --status-completed-fg: #2f5f68;
+  --status-completed-bg: #e3eef0;
+  --status-rejected-fg: #9a4b42;
+  --status-rejected-bg: #f7e7e5;
+
+  /* §4.5 priority */
+  --priority-high: #8a6320;
+  --priority-medium: #4f5f9e;
+  --priority-low: #5f6773;
+
+  /* §4.6 wait time */
+  --wait-normal: #5f6773;
+  --wait-long: #8a6320;
+
+  /* §4.7 elevation */
+  --shadow-card: 0 1px 2px rgba(16, 19, 23, 0.05);
+  --shadow-search: 0 1px 2px rgba(16, 19, 23, 0.04);
+  --shadow-dialog: 0 24px 60px rgba(16, 19, 23, 0.22);
+  --shadow-sheet: 0 -8px 40px rgba(16, 19, 23, 0.28);
+  --scrim: rgba(16, 19, 23, 0.42);
+
+  /* §4.8 focus ring */
+  --focus: #4f5f9e;
+  --focus-halo: rgba(79, 95, 158, 0.18);
+
+  /* §4.9 note panel — the only warm surface */
+  --note-bg: #fbfaf7;
+  --note-border: #ece7dd;
+  --note-label: #6b6355;
+  --note-dot: #c9c1b1;
+  --note-text: #3f3a31;
+
+  /* §7.9 buttons */
+  --btn-primary-bg: #2b3550;
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-border: #dfe3ea;
+  --btn-secondary-fg: #2b3550;
+  --btn-quiet-bg: #f4f5f8;
+  --btn-quiet-border: #e7eaef;
+  --chip-plus: #4f5f9e;
+
+  /* §7.5 filter pills */
+  --pill-active-bg: #101317;
+  --pill-active-fg: #ffffff;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --bg-page: #0f1115;
+  --bg-chrome: #14171c;
+  --bg-card: #191c22;
+  --bg-sunken: #15181d;
+  --bg-bar: #15181d;
+  --bg-input: #12151a;
+  --bg-sheet: #1c1f26;
+  --bg-media: #1f232b;
+  --border-default: #262a33;
+  --border-subtle: #24282f;
+  --border-control: #2d323c;
+  --border-dialog: #333a47;
+  --border-dashed: #3a4049;
+
+  --text: #f4f5f7;
+  --text-body: #e9eaee;
+  --text-secondary: #c3c8d2;
+  --text-muted: #a0a7b2;
+  --text-faint: #8a919c;
+  --placeholder: #9aa1ac;
+
+  --brand: #4f5f9e;
+  --brand-fg: #93a6dc;
+  --brand-strong: #dce2f2;
+  --brand-tint: #1e2331;
+  --brand-underline: #3f4a66;
+
+  --status-pending-fg: #93a6dc;
+  --status-pending-bg: #1c2233;
+  --status-bought-fg: #85b391;
+  --status-bought-bg: #172420;
+  --status-completed-fg: #7fabb1;
+  --status-completed-bg: #17242a;
+  --status-rejected-fg: #d1908e;
+  --status-rejected-bg: #271d1c;
+
+  --priority-high: #d6a75c;
+  --priority-medium: #a9b8d9;
+  --priority-low: #a0a7b2;
+
+  --wait-normal: #a0a7b2;
+  --wait-long: #d6a75c;
+
+  /* Dark carries elevation with hairlines, not shadows. */
+  --shadow-card: none;
+  --shadow-search: none;
+  --shadow-dialog: 0 24px 70px rgba(0, 0, 0, 0.6);
+  --shadow-sheet: none;
+  --scrim: rgba(0, 0, 0, 0.55);
+
+  --focus: #93a6dc;
+  --focus-halo: rgba(147, 166, 220, 0.22);
+
+  --note-bg: #201d1a;
+  --note-border: #33302a;
+  --note-label: #b6ab97;
+  --note-dot: #5a5347;
+  --note-text: #ece6da;
+
+  --btn-primary-bg: #4f5f9e;
+  --btn-secondary-bg: #1c2027;
+  --btn-secondary-border: #2d323c;
+  --btn-secondary-fg: #c3c8d2;
+  --btn-quiet-bg: #20242c;
+  --btn-quiet-border: #2d323c;
+  --chip-plus: #93a6dc;
+
+  --pill-active-bg: #e9eaee;
+  --pill-active-fg: #101317;
+}
+
+/* shadcn/ui semantic variables, resolved from the Wishlist tokens above. */
+:root {
+  --radius: 0.625rem;
+  --background: var(--bg-page);
+  --foreground: var(--text);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-body);
+  --popover: var(--bg-card);
+  --popover-foreground: var(--text-body);
+  --primary: var(--btn-primary-bg);
+  --primary-foreground: #ffffff;
+  --secondary: var(--btn-secondary-bg);
+  --secondary-foreground: var(--btn-secondary-fg);
+  --muted: var(--bg-sunken);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--btn-quiet-bg);
+  --accent-foreground: var(--text);
+  --destructive: var(--status-rejected-fg);
+  --border: var(--border-default);
+  --input: var(--border-control);
+  --ring: var(--focus);
+}
+
+@theme inline {
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-heading: var(--font-sans);
+
+  /* shadcn */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Surfaces: bg-page, bg-chrome, bg-sunken, … */
+  --color-page: var(--bg-page);
+  --color-chrome: var(--bg-chrome);
+  --color-sunken: var(--bg-sunken);
+  --color-bar: var(--bg-bar);
+  --color-field: var(--bg-input);
+  --color-sheet: var(--bg-sheet);
+  --color-media: var(--bg-media);
+
+  /* Borders: border-subtle, border-control, … */
+  --color-subtle: var(--border-subtle);
+  --color-control: var(--border-control);
+  --color-dialog: var(--border-dialog);
+  --color-dashed: var(--border-dashed);
+
+  /* Text: text-ink, text-ink-muted, … */
+  --color-ink: var(--text);
+  --color-ink-body: var(--text-body);
+  --color-ink-secondary: var(--text-secondary);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-faint: var(--text-faint);
+
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-underline: var(--brand-underline);
+
+  --color-pending: var(--status-pending-fg);
+  --color-pending-bg: var(--status-pending-bg);
+  --color-bought: var(--status-bought-fg);
+  --color-bought-bg: var(--status-bought-bg);
+  --color-completed: var(--status-completed-fg);
+  --color-completed-bg: var(--status-completed-bg);
+  --color-rejected: var(--status-rejected-fg);
+  --color-rejected-bg: var(--status-rejected-bg);
+
+  --color-priority-high: var(--priority-high);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-low: var(--priority-low);
+
+  --color-wait: var(--wait-normal);
+  --color-wait-long: var(--wait-long);
+
+  --color-note: var(--note-bg);
+  --color-note-border: var(--note-border);
+  --color-note-label: var(--note-label);
+  --color-note-dot: var(--note-dot);
+  --color-note-text: var(--note-text);
+
+  --color-btn-quiet: var(--btn-quiet-bg);
+  --color-btn-quiet-border: var(--btn-quiet-border);
+  --color-btn-secondary: var(--btn-secondary-bg);
+  --color-btn-secondary-border: var(--btn-secondary-border);
+  --color-btn-secondary-fg: var(--btn-secondary-fg);
+  --color-chip-plus: var(--chip-plus);
+  --color-pill-active: var(--pill-active-bg);
+  --color-pill-active-fg: var(--pill-active-fg);
+  --color-scrim: var(--scrim);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-search: var(--shadow-search);
+  --shadow-dialog: var(--shadow-dialog);
+  --shadow-sheet: var(--shadow-sheet);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* Mono eyebrow label — §5. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The user's voice — personal notes and reflection lines only (§2 rule 4). */
+@utility voice {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-page text-ink-body;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Every mono numeral is tabular (§5). */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+  }
+
+  /* §4.8 — one focus ring for every interactive element. A 1px border plus a
+     1px inner ring renders the 2px edge without shifting layout. */
+  :focus-visible {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow:
+      0 0 0 1px var(--focus),
+      0 0 0 4px var(--focus-halo);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
