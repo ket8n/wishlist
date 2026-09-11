@@ -7,8 +7,9 @@ Next.js (App Router) · TypeScript · Tailwind CSS v4 · shadcn/ui.
 ## Development
 
 ```bash
-npm install
-cp .env.example .env.local
+npm install            # also generates the Prisma client
+cp .env.example .env   # set DATABASE_URL
+npm run db:migrate     # apply migrations to your database
 npm run dev
 ```
 
