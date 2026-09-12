@@ -98,6 +98,28 @@ export const updateNoteSchema = z.object({
   note: optionalText(LIMITS.note),
 });
 
+export const SORT_OPTIONS = ["updated", "created", "oldest", "priority"] as const;
+
+export const STATUS_FILTERS = [...WISH_STATUSES, "all"] as const;
+
+const first = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] : value;
+
+// Query strings are untrusted: anything unrecognised falls back to a default.
+export const wishFiltersSchema = z.object({
+  q: z
+    .preprocess(first, z.string().trim().max(120).optional())
+    .transform((v) => (v ? v : undefined)),
+  status: z.preprocess(first, z.enum(STATUS_FILTERS).catch("PENDING")),
+  priority: z.preprocess(first, z.enum(WISH_PRIORITIES).optional().catch(undefined)),
+  category: z.preprocess(first, z.enum(WISH_CATEGORIES).optional().catch(undefined)),
+  sort: z.preprocess(first, z.enum(SORT_OPTIONS).catch("updated")),
+});
+
+export type WishFilters = z.infer<typeof wishFiltersSchema>;
+export type SortOption = (typeof SORT_OPTIONS)[number];
+export type StatusFilter = (typeof STATUS_FILTERS)[number];
+
 export type WishStatusValue = (typeof WISH_STATUSES)[number];
 export type CreateWishInput = z.infer<typeof createWishSchema>;
 export type WishFieldsInput = z.infer<typeof wishFieldsSchema>;

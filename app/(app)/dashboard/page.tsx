@@ -1,23 +1,46 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { firstNameOf } from "@/components/app-shell/sidebar";
 import { EmptyState } from "@/components/wishlist/empty-state";
-import { QuickCreateButton } from "@/components/wishlist/quick-create";
+import { ClearFiltersButton, FilterBar } from "@/components/wishlist/filter-bar";
 import { HistoryCard } from "@/components/wishlist/history-card";
+import { QuickCreateButton } from "@/components/wishlist/quick-create";
+import { StatusPills, buildHref } from "@/components/wishlist/status-pills";
 import { WishCard } from "@/components/wishlist/wish-card";
 import { WishGrid } from "@/components/wishlist/wish-grid";
 import { requireUser } from "@/lib/auth/session";
 import { countInWords, plural } from "@/lib/format";
-import { getUserWishes } from "@/lib/services/wishes";
+import { getUserWishes, getWishStats } from "@/lib/services/wishes";
+import { wishFiltersSchema } from "@/lib/validation/wish";
 
 export const metadata: Metadata = { title: "My Wishlist" };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   const user = await requireUser();
-  const wishes = await getUserWishes(user.id);
-  const pending = wishes.filter((w) => w.status === "PENDING");
-  const history = wishes.filter((w) => w.status !== "PENDING");
+  const filters = wishFiltersSchema.parse(await searchParams);
+
+  // Pending and All keep the History band below; a terminal pill owns the grid.
+  const gridStatus =
+    filters.status === "PENDING" || filters.status === "all" ? undefined : filters.status;
+  const [wishes, stats] = await Promise.all([
+    getUserWishes(user.id, {
+      q: filters.q,
+      status: gridStatus,
+      priority: filters.priority,
+      category: filters.category,
+      sort: filters.sort,
+    }),
+    getWishStats(user.id),
+  ]);
+
+  const grid =
+    filters.status === "PENDING" ? wishes.filter((w) => w.status === "PENDING") : wishes;
+  const history =
+    filters.status === "PENDING" ? wishes.filter((w) => w.status !== "PENDING") : [];
+
+  const filtered = Boolean(filters.q || filters.priority || filters.category);
   const firstName = firstNameOf(user);
 
   return (
@@ -28,14 +51,14 @@ export default async function DashboardPage() {
           <h1 className="text-[25px] leading-[1.15] font-semibold tracking-[-0.025em] text-ink lg:text-[27px]">
             My Wishlist
           </h1>
-          {pending.length > 0 && (
+          {stats.pending > 0 && (
             <p className="mt-2 text-[13px] leading-[1.45] text-ink-muted">
-              {countInWords(pending.length, true)} {plural(pending.length, "thing", "things")}{" "}
+              {countInWords(stats.pending, true)} {plural(stats.pending, "thing", "things")}{" "}
               you&apos;re still thinking about. Nothing here needs deciding today.
             </p>
           )}
         </div>
-        {wishes.length > 0 && (
+        {stats.total > 0 && (
           <QuickCreateButton className="hidden shadow-card lg:inline-flex">
             <Plus className="text-chip-plus" />
             Add wish
@@ -43,26 +66,40 @@ export default async function DashboardPage() {
         )}
       </header>
 
-      {wishes.length === 0 ? (
+      {stats.total === 0 ? (
         <EmptyState />
       ) : (
         <>
-          <section aria-labelledby="pending-title" className="mt-[22px]">
-            <h2 id="pending-title" className="sr-only">
-              Still thinking about
+          <div className="mt-[22px]">
+            <FilterBar filters={filters} shown={wishes.length} />
+          </div>
+          <div className="mt-5">
+            <StatusPills filters={filters} stats={stats} />
+          </div>
+
+          <section aria-labelledby="results-title" className="mt-[22px]">
+            <h2 id="results-title" className="sr-only">
+              Wishes
             </h2>
-            {pending.length > 0 ? (
+            {grid.length > 0 ? (
               <WishGrid>
-                {pending.map((wish) => (
+                {grid.map((wish) => (
                   <li key={wish.id}>
                     <WishCard wish={wish} />
                   </li>
                 ))}
               </WishGrid>
             ) : (
-              <p className="text-[13px] leading-[1.45] text-ink-muted">
-                Nothing pending. Everything here has been decided.
-              </p>
+              <div className="rounded-[12px] border border-subtle bg-sunken px-5 py-8 text-center">
+                <p className="text-[13.5px] text-ink">
+                  {filtered ? "Nothing matches those filters." : "Nothing here yet."}
+                </p>
+                {filtered && (
+                  <div className="mt-4 flex justify-center">
+                    <ClearFiltersButton />
+                  </div>
+                )}
+              </div>
             )}
           </section>
 
@@ -79,6 +116,12 @@ export default async function DashboardPage() {
                   {countInWords(history.length, true)} {plural(history.length, "decision", "decisions")}{" "}
                   you&apos;ve already made.
                 </p>
+                <Link
+                  href={buildHref(filters, { status: "all" })}
+                  className="ml-auto rounded-[6px] text-[12px] font-semibold text-brand-fg hover:underline"
+                >
+                  See all
+                </Link>
               </div>
               <ul className="mt-4 grid gap-3.5 lg:grid-cols-2">
                 {history.map((wish) => (

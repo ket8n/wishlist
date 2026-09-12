@@ -45,7 +45,31 @@ describe("ownership scoping", () => {
     db.wish.findMany.mockResolvedValue([]);
     await wishes.getUserWishes(USER);
     expect(db.wish.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { userId: USER }, orderBy: { updatedAt: "desc" } }),
+      expect.objectContaining({ where: { userId: USER }, orderBy: [{ updatedAt: "desc" }] }),
+    );
+  });
+
+  it("applies filters and sorting inside the caller's own wishes", async () => {
+    db.wish.findMany.mockResolvedValue([]);
+    await wishes.getUserWishes(USER, {
+      q: "kindle",
+      status: "BOUGHT",
+      priority: "HIGH",
+      category: "ELECTRONICS",
+      sort: "priority",
+    });
+
+    expect(db.wish.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId: USER,
+          status: "BOUGHT",
+          priority: "HIGH",
+          category: "ELECTRONICS",
+          name: { contains: "kindle", mode: "insensitive" },
+        },
+        orderBy: [{ priority: "desc" }, { updatedAt: "desc" }],
+      }),
     );
   });
 

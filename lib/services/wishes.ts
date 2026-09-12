@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@/lib/generated/prisma/client";
 import type {
   CreateWishInput,
+  SortOption,
   WishFieldsInput,
   WishStatusValue,
 } from "@/lib/validation/wish";
@@ -46,10 +47,31 @@ function linkRows(links: WishFieldsInput["links"]) {
   return links.map((link, position) => ({ ...link, position }));
 }
 
-export async function getUserWishes(userId: string) {
+const ORDER_BY: Record<SortOption, Prisma.WishOrderByWithRelationInput[]> = {
+  updated: [{ updatedAt: "desc" }],
+  created: [{ createdAt: "desc" }],
+  oldest: [{ createdAt: "asc" }],
+  priority: [{ priority: "desc" }, { updatedAt: "desc" }],
+};
+
+export type WishQuery = {
+  q?: string;
+  status?: WishStatusValue;
+  priority?: WishFieldsInput["priority"];
+  category?: WishFieldsInput["category"];
+  sort?: SortOption;
+};
+
+export async function getUserWishes(userId: string, query: WishQuery = {}) {
   const wishes = await db.wish.findMany({
-    where: { userId },
-    orderBy: { updatedAt: "desc" },
+    where: {
+      userId,
+      ...(query.status && { status: query.status }),
+      ...(query.priority && { priority: query.priority }),
+      ...(query.category && { category: query.category }),
+      ...(query.q && { name: { contains: query.q, mode: "insensitive" } }),
+    },
+    orderBy: ORDER_BY[query.sort ?? "updated"],
     include: wishInclude,
   });
   return wishes.map(toView);
