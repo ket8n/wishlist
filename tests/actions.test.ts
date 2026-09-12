@@ -21,6 +21,7 @@ import {
   deleteWishAction,
   saveWishAction,
   updateWishAction,
+  updateWishNoteAction,
 } from "@/lib/actions/wishes";
 
 beforeEach(() => {
@@ -91,6 +92,27 @@ describe("wish actions", () => {
       error: "We couldn't find that wish.",
     });
     expect(services.updateWish).not.toHaveBeenCalled();
+  });
+
+  it("edits a note as the session user and blanks an empty one", async () => {
+    services.updateWishNote.mockResolvedValue(true);
+
+    expect(await updateWishNoteAction({ id: "w1", note: "  Changed  " })).toEqual({
+      ok: true,
+      data: undefined,
+    });
+    expect(services.updateWishNote).toHaveBeenCalledWith("user-a", "w1", "Changed");
+
+    await updateWishNoteAction({ id: "w1", note: "   " });
+    expect(services.updateWishNote).toHaveBeenLastCalledWith("user-a", "w1", null);
+  });
+
+  it("refuses a note edit on another user's wish", async () => {
+    services.updateWishNote.mockResolvedValue(false);
+    expect(await updateWishNoteAction({ id: "w-other", note: "hi" })).toEqual({
+      ok: false,
+      error: "We couldn't find that wish.",
+    });
   });
 
   it("hides internal errors", async () => {

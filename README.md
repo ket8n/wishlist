@@ -21,4 +21,3 @@ npm run lint
 npm run build
 ```
 
-Product, architecture and design docs live in `docs/`.
