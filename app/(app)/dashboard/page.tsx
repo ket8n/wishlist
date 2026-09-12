@@ -20,8 +20,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const gridStatus =
     filters.status === "PENDING" || filters.status === "all" ? undefined : filters.status;
   const [wishes, stats] = await Promise.all([
+    // Name search is applied client-side, so the loaded set always matches
+    // the other filters and clearing the search needs no refetch.
     getUserWishes(user.id, {
-      q: filters.q,
       status: gridStatus,
       priority: filters.priority,
       category: filters.category,

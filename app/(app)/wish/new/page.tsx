@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 
 import { WishForm } from "@/components/wishlist/wish-form";
 import { requireUser } from "@/lib/auth/session";
+import { wishDraftSchema } from "@/lib/validation/wish";
 
 export const metadata: Metadata = { title: "Add a wish" };
 
-export default async function NewWishPage() {
+export default async function NewWishPage({ searchParams }: PageProps<"/wish/new">) {
   await requireUser();
+  const { image, ...draft } = wishDraftSchema.parse(await searchParams);
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
@@ -19,7 +21,7 @@ export default async function NewWishPage() {
           Only the name is required, everything else can wait.
         </p>
       </header>
-      <WishForm />
+      <WishForm draft={{ ...draft, images: image ? [image] : undefined }} />
     </div>
   );
 }

@@ -32,22 +32,34 @@ type Priority = (typeof WISH_PRIORITIES)[number];
 type LinkRow = { label: string; url: string };
 type FieldErrors = Record<string, string[]>;
 
-export function WishForm({ wish }: { wish?: WishView }) {
+export type WishDraft = {
+  name?: string;
+  description?: string;
+  category?: Category;
+  priority?: Priority;
+  estimatedPrice?: string;
+  images?: string[];
+  note?: string;
+};
+
+export function WishForm({ wish, draft }: { wish?: WishView; draft?: WishDraft }) {
   const router = useRouter();
   const isEdit = Boolean(wish);
 
-  const [name, setName] = useState(wish?.name ?? "");
-  const [description, setDescription] = useState(wish?.description ?? "");
-  const [category, setCategory] = useState<Category>(wish?.category ?? "OTHER");
-  const [priority, setPriority] = useState<Priority>(wish?.priority ?? "MEDIUM");
+  const [name, setName] = useState(wish?.name ?? draft?.name ?? "");
+  const [description, setDescription] = useState(wish?.description ?? draft?.description ?? "");
+  const [category, setCategory] = useState<Category>(wish?.category ?? draft?.category ?? "OTHER");
+  const [priority, setPriority] = useState<Priority>(wish?.priority ?? draft?.priority ?? "MEDIUM");
   const [status, setStatus] = useState<WishStatusValue>(wish?.status ?? "PENDING");
-  const [estimatedPrice, setEstimatedPrice] = useState(wish?.estimatedPrice ?? "");
+  const [estimatedPrice, setEstimatedPrice] = useState(
+    wish?.estimatedPrice ?? draft?.estimatedPrice ?? "",
+  );
   const [currency, setCurrency] = useState(wish?.currency ?? "INR");
-  const [images, setImages] = useState<string[]>(wish?.images ?? []);
+  const [images, setImages] = useState<string[]>(wish?.images ?? draft?.images ?? []);
   const [links, setLinks] = useState<LinkRow[]>(
     wish?.links.map(({ label, url }) => ({ label, url })) ?? [],
   );
-  const [note, setNote] = useState(wish?.note ?? "");
+  const [note, setNote] = useState(wish?.note ?? draft?.note ?? "");
 
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});

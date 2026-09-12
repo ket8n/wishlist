@@ -116,6 +116,23 @@ export const wishFiltersSchema = z.object({
   sort: z.preprocess(first, z.enum(SORT_OPTIONS).catch("updated")),
 });
 
+// Prefill for /wish/new when the quick-create modal hands off. Untrusted:
+// every field falls back to undefined and is validated again on submit.
+export const wishDraftSchema = z.object({
+  name: z.preprocess(first, z.string().trim().max(LIMITS.name).optional().catch(undefined)),
+  description: z.preprocess(
+    first,
+    z.string().trim().max(LIMITS.description).optional().catch(undefined),
+  ),
+  category: z.preprocess(first, z.enum(WISH_CATEGORIES).optional().catch(undefined)),
+  priority: z.preprocess(first, z.enum(WISH_PRIORITIES).optional().catch(undefined)),
+  estimatedPrice: z.preprocess(first, z.string().trim().max(32).optional().catch(undefined)),
+  image: z.preprocess(first, z.string().trim().max(LIMITS.url).optional().catch(undefined)),
+  note: z.preprocess(first, z.string().trim().max(LIMITS.note).optional().catch(undefined)),
+});
+
+export type WishDraftInput = z.infer<typeof wishDraftSchema>;
+
 export type WishFilters = z.infer<typeof wishFiltersSchema>;
 export type SortOption = (typeof SORT_OPTIONS)[number];
 export type StatusFilter = (typeof STATUS_FILTERS)[number];

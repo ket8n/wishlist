@@ -83,6 +83,23 @@ function QuickCreateBody({ onDone }: { onDone: () => void }) {
     setShown({ ...shown, [key]: true });
   }
 
+  // Carries whatever has been typed over to the full create page.
+  function fullPageHref() {
+    const params = new URLSearchParams();
+    const entries: [string, string][] = [
+      ["name", name],
+      ["description", description],
+      ["estimatedPrice", estimatedPrice],
+      ["image", image],
+      ["note", note],
+    ];
+    for (const [key, value] of entries) if (value.trim()) params.set(key, value.trim());
+    if (category !== "OTHER") params.set("category", category);
+    if (priority !== "MEDIUM") params.set("priority", priority);
+    const qs = params.toString();
+    return qs ? `/wish/new?${qs}` : "/wish/new";
+  }
+
   function submit(event: React.FormEvent) {
     event.preventDefault();
     startTransition(async () => {
@@ -124,7 +141,7 @@ function QuickCreateBody({ onDone }: { onDone: () => void }) {
           autoFocus
           aria-label="Name"
           aria-invalid={Boolean(fieldErrors.name)}
-          className="mt-2.5 h-12 px-0 text-[18px] font-semibold text-ink lg:h-12 lg:text-[19px] border-0 bg-transparent"
+          className="mt-2.5 h-13 px-3.5 text-[18px] font-semibold text-ink lg:h-13 lg:text-[19px]"
           placeholder="A name is enough to start"
         />
         <FieldError errors={fieldErrors.name} />
@@ -259,7 +276,7 @@ function QuickCreateBody({ onDone }: { onDone: () => void }) {
 
       <DialogFooter className="sm:justify-between">
         <Link
-          href="/wish/new"
+          href={fullPageHref()}
           className="inline-flex min-h-11 items-center gap-1.5 rounded-[6px] text-[12.5px] font-medium text-ink-muted hover:text-ink sm:min-h-0"
         >
           Open full create page

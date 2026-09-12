@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { changeStatusSchema, createWishSchema, updateWishSchema } from "@/lib/validation/wish";
+import {
+  changeStatusSchema,
+  createWishSchema,
+  updateWishSchema,
+  wishDraftSchema,
+} from "@/lib/validation/wish";
 
 describe("createWishSchema", () => {
   it("requires a name and applies defaults", () => {
@@ -68,6 +73,39 @@ describe("createWishSchema", () => {
     expect(createWishSchema.safeParse({ name: "a".repeat(121) }).success).toBe(false);
     const links = Array.from({ length: 11 }, () => ({ label: "L", url: "https://a.com" }));
     expect(createWishSchema.safeParse({ name: "x", links }).success).toBe(false);
+  });
+});
+
+describe("wishDraftSchema", () => {
+  it("carries quick-create values over to the full page", () => {
+    expect(
+      wishDraftSchema.parse({
+        name: " Kindle ",
+        description: "for the commute",
+        category: "ELECTRONICS",
+        priority: "HIGH",
+        estimatedPrice: "14999",
+        note: "maybe after payday",
+      }),
+    ).toMatchObject({
+      name: "Kindle",
+      description: "for the commute",
+      category: "ELECTRONICS",
+      priority: "HIGH",
+      estimatedPrice: "14999",
+      note: "maybe after payday",
+    });
+  });
+
+  it("drops junk instead of failing", () => {
+    const result = wishDraftSchema.parse({
+      name: "a".repeat(500),
+      category: "CARS",
+      priority: "URGENT",
+    });
+    expect(result.category).toBeUndefined();
+    expect(result.priority).toBeUndefined();
+    expect(result.name).toBeUndefined();
   });
 });
 
