@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { firstNameOf } from "@/components/app-shell/sidebar";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/wishlist/empty-state";
+import { QuickCreateButton } from "@/components/wishlist/quick-create";
 import { HistoryCard } from "@/components/wishlist/history-card";
 import { WishCard } from "@/components/wishlist/wish-card";
 import { WishGrid } from "@/components/wishlist/wish-grid";
@@ -37,12 +36,10 @@ export default async function DashboardPage() {
           )}
         </div>
         {wishes.length > 0 && (
-          <Button asChild variant="secondary" className="hidden shadow-card lg:inline-flex">
-            <Link href="/wish/new">
-              <Plus className="text-chip-plus" />
-              Add wish
-            </Link>
-          </Button>
+          <QuickCreateButton className="hidden shadow-card lg:inline-flex">
+            <Plus className="text-chip-plus" />
+            Add wish
+          </QuickCreateButton>
         )}
       </header>
 

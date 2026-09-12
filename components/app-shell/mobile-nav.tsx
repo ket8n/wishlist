@@ -5,7 +5,7 @@ import { AccountMenu } from "@/components/app-shell/account-menu";
 import { NavLink } from "@/components/app-shell/nav-link";
 import { tabItemClass } from "@/components/app-shell/nav-styles";
 import { BrandMark } from "@/components/brand-mark";
-import { Button } from "@/components/ui/button";
+import { QuickCreateButton } from "@/components/wishlist/quick-create";
 import type { CurrentUser } from "@/lib/auth/session";
 
 export function MobileHeader() {
@@ -28,12 +28,10 @@ export function TabBar({ user }: { user: CurrentUser }) {
         <List aria-hidden />
         Wishlist
       </NavLink>
-      <Button asChild variant="primary" className="h-11">
-        <Link href="/wish/new">
-          <Plus />
-          Add wish
-        </Link>
-      </Button>
+      <QuickCreateButton variant="primary" className="h-11">
+        <Plus />
+        Add wish
+      </QuickCreateButton>
       <AccountMenu user={user} side="top" align="end">
         <button type="button" className={tabItemClass}>
           <User aria-hidden />

@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { QuickCreateButton } from "@/components/wishlist/quick-create";
 
 export function EmptyState() {
   return (
@@ -12,12 +11,10 @@ export function EmptyState() {
       <p className="mt-2 text-[13px] leading-[1.45] text-ink-muted">
         It doesn&apos;t have to be something you&apos;ll buy.
       </p>
-      <Button asChild variant="primary" className="mt-6">
-        <Link href="/wish/new">
-          <Plus />
-          Add wish
-        </Link>
-      </Button>
+      <QuickCreateButton variant="primary" className="mt-6">
+        <Plus />
+        Add wish
+      </QuickCreateButton>
     </section>
   );
 }
