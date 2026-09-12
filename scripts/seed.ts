@@ -43,7 +43,7 @@ async function main() {
   });
   try {
     const user = await db.user.findUnique({ where: { email }, select: { id: true } });
-    if (!user) throw new Error(`No user with email ${email} — sign in once first`);
+    if (!user) throw new Error(`No user with email ${email} - sign in once first`);
 
     for (const seed of SEEDS) {
       const createdAt = new Date(Date.now() - seed.daysAgo * 86_400_000);

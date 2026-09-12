@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const services = vi.hoisted(() => ({
   createWish: vi.fn(),
+  getWish: vi.fn(),
   updateWish: vi.fn(),
   deleteWish: vi.fn(),
   changeWishStatus: vi.fn(),
@@ -18,6 +19,7 @@ import {
   changeWishStatusAction,
   createWishAction,
   deleteWishAction,
+  saveWishAction,
   updateWishAction,
 } from "@/lib/actions/wishes";
 
@@ -58,6 +60,37 @@ describe("wish actions", () => {
     expect(await deleteWishAction("w-other")).toEqual(expected);
     expect(await changeWishStatusAction({ id: "w-other", status: "BOUGHT" })).toEqual(expected);
     expect(services.updateWish.mock.calls[0][0]).toBe("user-a");
+  });
+
+  it("saves fields, and touches status or note only when they changed", async () => {
+    const current = { id: "w1", status: "PENDING", note: "Still thinking" };
+    services.getWish.mockResolvedValue(current);
+    services.updateWish.mockResolvedValue(true);
+    const fields = { id: "w1", name: "Kindle", status: "PENDING", note: "Still thinking" };
+
+    expect(await saveWishAction(fields)).toEqual({ ok: true, data: undefined });
+    expect(services.updateWish).toHaveBeenCalledWith("user-a", "w1", expect.objectContaining({ name: "Kindle" }));
+    expect(services.changeWishStatus).not.toHaveBeenCalled();
+    expect(services.updateWishNote).not.toHaveBeenCalled();
+
+    await saveWishAction({ ...fields, status: "BOUGHT", note: "Got it" });
+    expect(services.changeWishStatus).toHaveBeenCalledWith("user-a", "w1", "BOUGHT", "Got it");
+
+    vi.clearAllMocks();
+    services.getWish.mockResolvedValue(current);
+    services.updateWish.mockResolvedValue(true);
+    await saveWishAction({ ...fields, note: "Changed my mind" });
+    expect(services.updateWishNote).toHaveBeenCalledWith("user-a", "w1", "Changed my mind");
+    expect(services.changeWishStatus).not.toHaveBeenCalled();
+  });
+
+  it("refuses to save another user's wish", async () => {
+    services.getWish.mockResolvedValue(null);
+    expect(await saveWishAction({ id: "w-other", name: "x", status: "PENDING" })).toEqual({
+      ok: false,
+      error: "We couldn't find that wish.",
+    });
+    expect(services.updateWish).not.toHaveBeenCalled();
   });
 
   it("hides internal errors", async () => {

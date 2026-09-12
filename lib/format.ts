@@ -63,3 +63,22 @@ export function daysInList(createdAt: Date, now = new Date()) {
 }
 
 export const LONG_WAIT_DAYS = 30;
+
+export function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+export function formatRelative(date: Date, now = new Date()) {
+  const days = daysInList(date, now);
+  if (days === 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.round(days / 30);
+  if (months < 12) return `${months} ${plural(months, "month", "months")} ago`;
+  const years = Math.round(days / 365);
+  return `${years} ${plural(years, "year", "years")} ago`;
+}

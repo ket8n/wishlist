@@ -1,17 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { z } from "zod";
+import { z } from "zod";
 
 import { requireUser } from "@/lib/auth/session";
 import * as wishes from "@/lib/services/wishes";
 import {
+  WISH_STATUSES,
   changeStatusSchema,
   createWishSchema,
   updateNoteSchema,
   updateWishSchema,
   wishId,
 } from "@/lib/validation/wish";
+
+const saveWishSchema = updateWishSchema.extend({
+  status: z.enum(WISH_STATUSES),
+  note: updateNoteSchema.shape.note,
+});
 
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
@@ -64,6 +70,28 @@ export async function updateWishAction(input: unknown): Promise<ActionResult> {
 
   return run(async () => {
     if (!(await wishes.updateWish(user.id, id, fields))) return { ok: false, error: NOT_FOUND };
+    refresh(id);
+    return { ok: true, data: undefined };
+  });
+}
+
+// Edit page save: fields always; status/note only when they actually changed.
+export async function saveWishAction(input: unknown): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = saveWishSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { id, status, note, ...fields } = parsed.data;
+
+  return run(async () => {
+    const current = await wishes.getWish(user.id, id);
+    if (!current) return { ok: false, error: NOT_FOUND };
+    if (!(await wishes.updateWish(user.id, id, fields))) return { ok: false, error: NOT_FOUND };
+
+    if (status !== current.status) {
+      await wishes.changeWishStatus(user.id, id, status, note);
+    } else if (note !== current.note) {
+      await wishes.updateWishNote(user.id, id, note);
+    }
     refresh(id);
     return { ok: true, data: undefined };
   });
