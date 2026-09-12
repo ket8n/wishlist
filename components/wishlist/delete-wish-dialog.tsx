@@ -15,11 +15,26 @@ import {
 } from "@/components/ui/dialog";
 import { deleteWishAction } from "@/lib/actions/wishes";
 
-export function DeleteWishDialog({ wishId, name }: { wishId: string; name: string }) {
+export function DeleteWishDialog({
+  wishId,
+  name,
+  open,
+  onOpenChange,
+  withTrigger = true,
+}: {
+  wishId: string;
+  name: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  withTrigger?: boolean;
+}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const isOpen = open ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
 
   function remove() {
     startTransition(async () => {
@@ -35,12 +50,14 @@ export function DeleteWishDialog({ wishId, name }: { wishId: string; name: strin
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="text-rejected">
-          Delete
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      {withTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="ghost" className="text-rejected">
+            Delete
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent showCloseButton={false}>
         <div className="p-[18px]">
           <DialogHeader>
@@ -60,7 +77,7 @@ export function DeleteWishDialog({ wishId, name }: { wishId: string; name: strin
             Cancel
           </Button>
           <Button variant="destructive" onClick={remove} disabled={pending}>
-            {pending ? "Deleting…" : "Delete"}
+            {pending ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </DialogContent>

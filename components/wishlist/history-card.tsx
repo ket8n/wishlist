@@ -1,11 +1,10 @@
-import Link from "next/link";
-
 import { StatusChip } from "@/components/wishlist/status-chip";
 import { WishMedia } from "@/components/wishlist/wish-media";
+import { WishViewButton } from "@/components/wishlist/wish-view-button";
 import { formatPrice } from "@/lib/format";
 import type { WishView } from "@/lib/services/wishes";
 
-// Terminal wishes: recessed surface, full-contrast type — never faded.
+// Terminal wishes: recessed surface, full-contrast type, never faded.
 export function HistoryCard({ wish }: { wish: WishView }) {
   const price = formatPrice(wish.estimatedPrice, wish.currency);
   const image = wish.images[0];
@@ -41,12 +40,7 @@ export function HistoryCard({ wish }: { wish: WishView }) {
             {price}
           </span>
         )}
-        <Link
-          href={`/wish/${wish.id}`}
-          className="inline-flex min-h-11 items-center rounded-[6px] px-1 text-[11.5px] font-semibold text-brand-fg hover:underline lg:min-h-0"
-        >
-          View<span className="sr-only"> {wish.name}</span>
-        </Link>
+        <WishViewButton wish={wish} variant="link" />
       </div>
     </article>
   );

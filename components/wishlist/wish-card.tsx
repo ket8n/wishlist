@@ -1,8 +1,6 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/wishlist/status-chip";
 import { WishCardMenu } from "@/components/wishlist/wish-card-menu";
+import { WishViewButton } from "@/components/wishlist/wish-view-button";
 import { WishMedia } from "@/components/wishlist/wish-media";
 import { PriorityLabel, WaitLine } from "@/components/wishlist/wish-meta";
 import { CATEGORY_LABEL, daysInList, formatPrice } from "@/lib/format";
@@ -54,13 +52,9 @@ export function WishCard({ wish }: { wish: WishView }) {
         </div>
 
         <div className="mt-3.5 flex items-center gap-2.5 border-t border-subtle pt-[13px]">
-          <Button asChild variant="quiet" size="sm" className="text-brand-strong">
-            <Link href={`/wish/${wish.id}`}>
-              View<span className="sr-only"> {wish.name}</span>
-            </Link>
-          </Button>
+          <WishViewButton wish={wish} />
           <WaitLine days={daysInList(wish.createdAt)} />
-          <WishCardMenu wishId={wish.id} name={wish.name} />
+          <WishCardMenu wish={wish} />
         </div>
       </div>
     </article>
