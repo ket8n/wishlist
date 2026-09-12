@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { db } from "@/lib/db";
 import type { Prisma } from "@/lib/generated/prisma/client";
 import type {
@@ -97,6 +99,9 @@ export async function getWishStats(userId: string, now = new Date()) {
   };
   return { ...stats, total: stats.pending + stats.bought + stats.completed + stats.rejected };
 }
+
+// The layout (sidebar) and the dashboard both need stats; one query per request.
+export const getRequestWishStats = cache((userId: string) => getWishStats(userId));
 
 export async function getWish(userId: string, id: string) {
   const wish = await db.wish.findFirst({ where: { id, userId }, include: wishInclude });

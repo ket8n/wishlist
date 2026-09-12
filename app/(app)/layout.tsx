@@ -1,11 +1,11 @@
 import { MobileHeader, TabBar } from "@/components/app-shell/mobile-nav";
 import { Sidebar } from "@/components/app-shell/sidebar";
 import { requireUser } from "@/lib/auth/session";
-import { getWishStats } from "@/lib/services/wishes";
+import { getRequestWishStats } from "@/lib/services/wishes";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const user = await requireUser();
-  const stats = await getWishStats(user.id);
+  const stats = await getRequestWishStats(user.id);
 
   return (
     <div className="flex flex-1">

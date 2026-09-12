@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -32,57 +32,44 @@ const SORT_LABEL: Record<SortOption, string> = {
 
 const ANY = "ANY";
 
-export function FilterBar({ filters, shown }: { filters: WishFilters; shown: number }) {
+export function FilterBar({
+  filters,
+  query,
+  onQueryChange,
+  shown,
+}: {
+  filters: WishFilters;
+  query: string;
+  onQueryChange: (value: string) => void;
+  shown: number;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [, startTransition] = useTransition();
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const [text, setText] = useState(filters.q ?? "");
-  const [lastUrlQ, setLastUrlQ] = useState(filters.q ?? "");
-  // Adopt the URL value when it changes elsewhere (pills, clear filters).
-  if ((filters.q ?? "") !== lastUrlQ) {
-    setLastUrlQ(filters.q ?? "");
-    setText(filters.q ?? "");
-  }
-
-  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  function apply(patch: Partial<Record<string, string | undefined>>) {
-    const merged: Record<string, string | undefined> = {
-      q: filters.q,
-      status: filters.status,
-      priority: filters.priority,
-      category: filters.category,
-      sort: filters.sort,
-      ...patch,
-    };
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(merged)) {
-      if (!value || value === ANY) continue;
-      if (key === "status" && value === "PENDING") continue;
-      if (key === "sort" && value === "updated") continue;
-      params.set(key, value);
+  // Reads the live URL so a search typed since the last navigation is kept.
+  function apply(patch: Record<string, string | undefined>) {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of Object.entries(patch)) {
+      if (!value || value === ANY) params.delete(key);
+      else params.set(key, value);
     }
+    if (params.get("status") === "PENDING") params.delete("status");
+    if (params.get("sort") === "updated") params.delete("sort");
     const qs = params.toString();
     startTransition(() => router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
   }
 
-  function onSearch(value: string) {
-    setText(value);
-    setLastUrlQ(value);
-    if (debounce.current) clearTimeout(debounce.current);
-    debounce.current = setTimeout(() => apply({ q: value || undefined }), 300);
-  }
-
-  const activeCount = [filters.priority, filters.category].filter(Boolean).length +
+  const activeCount =
+    [filters.priority, filters.category].filter(Boolean).length +
     (filters.sort !== "updated" ? 1 : 0);
 
   return (
     <div className="flex items-center gap-2.5 rounded-[11px] border bg-chrome p-2.5 shadow-search lg:gap-3">
       <Input
-        value={text}
-        onChange={(e) => onSearch(e.target.value)}
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
         placeholder="Search by name"
         aria-label="Search by name"
         className="h-11 flex-1 border-0 bg-transparent px-1.5 lg:h-9"
@@ -126,14 +113,14 @@ export function FilterBar({ filters, shown }: { filters: WishFilters; shown: num
       <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
         <DialogContent
           showCloseButton={false}
-          className="top-auto bottom-0 max-h-[85dvh] max-w-none translate-y-0 overflow-y-auto rounded-b-none rounded-t-[20px]"
+          className="top-auto bottom-0 max-h-[85dvh] max-w-none translate-y-0 overflow-y-auto rounded-t-[20px] rounded-b-none"
         >
           <div className="p-[18px]">
             <DialogHeader className="flex-row items-center justify-between">
               <DialogTitle>Filters</DialogTitle>
               <button
                 type="button"
-                onClick={() => apply({ priority: undefined, category: undefined, sort: "updated" })}
+                onClick={() => apply({ priority: undefined, category: undefined, sort: undefined })}
                 className="rounded-[6px] text-[12.5px] font-semibold text-brand-fg"
               >
                 Reset
@@ -240,15 +227,5 @@ function SheetGroup({
         ))}
       </div>
     </fieldset>
-  );
-}
-
-export function ClearFiltersButton() {
-  const router = useRouter();
-  const pathname = usePathname();
-  return (
-    <Button variant="quiet" onClick={() => router.replace(pathname, { scroll: false })}>
-      Clear filters
-    </Button>
   );
 }

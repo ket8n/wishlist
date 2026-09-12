@@ -4,9 +4,16 @@ import { cn } from "@/lib/utils";
 import type { WishStats } from "@/lib/services/wishes";
 import type { StatusFilter, WishFilters } from "@/lib/validation/wish";
 
-export function buildHref(filters: WishFilters, patch: Partial<Record<string, string | undefined>>) {
+export function buildHref(filters: WishFilters, patch: Record<string, string | undefined>) {
   const params = new URLSearchParams();
-  const merged = { q: filters.q, status: filters.status, priority: filters.priority, category: filters.category, sort: filters.sort, ...patch };
+  const merged: Record<string, string | undefined> = {
+    q: filters.q,
+    status: filters.status,
+    priority: filters.priority,
+    category: filters.category,
+    sort: filters.sort,
+    ...patch,
+  };
   for (const [key, value] of Object.entries(merged)) {
     if (!value) continue;
     if (key === "status" && value === "PENDING") continue;
@@ -17,7 +24,15 @@ export function buildHref(filters: WishFilters, patch: Partial<Record<string, st
   return qs ? `/dashboard?${qs}` : "/dashboard";
 }
 
-export function StatusPills({ filters, stats }: { filters: WishFilters; stats: WishStats }) {
+export function StatusPills({
+  filters,
+  stats,
+  query,
+}: {
+  filters: WishFilters;
+  stats: WishStats;
+  query?: string;
+}) {
   const pills: { value: StatusFilter; label: string; count: number }[] = [
     { value: "PENDING", label: "Pending", count: stats.pending },
     { value: "all", label: "All", count: stats.total },
@@ -34,7 +49,7 @@ export function StatusPills({ filters, stats }: { filters: WishFilters; stats: W
           return (
             <li key={pill.value}>
               <Link
-                href={buildHref(filters, { status: pill.value })}
+                href={buildHref(filters, { status: pill.value, q: query?.trim() || undefined })}
                 aria-current={active ? "true" : undefined}
                 className={cn(
                   "inline-flex min-h-11 items-center gap-1.5 rounded-full px-3.5 text-[12px] font-medium transition-colors duration-150 lg:min-h-0 lg:py-[7px]",
