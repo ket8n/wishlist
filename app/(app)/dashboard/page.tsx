@@ -1,44 +1,99 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
-import { BrandMark } from "@/components/brand-mark";
-import { ThemeControl } from "@/components/theme/theme-control";
+import { firstNameOf } from "@/components/app-shell/sidebar";
 import { Button } from "@/components/ui/button";
-import { logOut } from "@/lib/auth/actions";
+import { EmptyState } from "@/components/wishlist/empty-state";
+import { HistoryCard } from "@/components/wishlist/history-card";
+import { WishCard } from "@/components/wishlist/wish-card";
+import { WishGrid } from "@/components/wishlist/wish-grid";
 import { requireUser } from "@/lib/auth/session";
+import { countInWords, plural } from "@/lib/format";
+import { getUserWishes } from "@/lib/services/wishes";
 
 export const metadata: Metadata = { title: "My Wishlist" };
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const firstName = user.name?.split(" ")[0];
+  const wishes = await getUserWishes(user.id);
+  const pending = wishes.filter((w) => w.status === "PENDING");
+  const history = wishes.filter((w) => w.status !== "PENDING");
+  const firstName = firstNameOf(user);
 
   return (
-    <main className="mx-auto w-full max-w-[640px] px-5 py-10 lg:px-10">
-      <BrandMark />
-
-      <header className="mt-10">
-        {firstName && <p className="eyebrow text-ink-muted">{firstName}&apos;s</p>}
-        <h1 className="mt-2 text-[25px] leading-[1.15] font-semibold tracking-[-0.025em] text-ink lg:text-[27px]">
-          My Wishlist
-        </h1>
-        <p className="mt-2 text-[13px] leading-[1.45] text-ink-muted">
-          Signed in as {user.email ?? user.name}.
-        </p>
+    <>
+      <header className="flex items-center gap-5">
+        <div className="min-w-0 flex-1">
+          {firstName && <p className="eyebrow mb-2.5 text-ink-muted lg:hidden">{firstName}&apos;s</p>}
+          <h1 className="text-[25px] leading-[1.15] font-semibold tracking-[-0.025em] text-ink lg:text-[27px]">
+            My Wishlist
+          </h1>
+          {pending.length > 0 && (
+            <p className="mt-2 text-[13px] leading-[1.45] text-ink-muted">
+              {countInWords(pending.length, true)} {plural(pending.length, "thing", "things")}{" "}
+              you&apos;re still thinking about. Nothing here needs deciding today.
+            </p>
+          )}
+        </div>
+        {wishes.length > 0 && (
+          <Button asChild variant="secondary" className="hidden shadow-card lg:inline-flex">
+            <Link href="/wish/new">
+              <Plus className="text-chip-plus" />
+              Add wish
+            </Link>
+          </Button>
+        )}
       </header>
 
-      <section aria-labelledby="account-title" className="mt-10 max-w-[360px] border-t border-subtle pt-5">
-        <h2 id="account-title" className="eyebrow text-ink-muted">
-          Theme
-        </h2>
-        <div className="mt-3">
-          <ThemeControl />
-        </div>
-        <form action={logOut} className="mt-6">
-          <Button type="submit" variant="quiet">
-            Log out
-          </Button>
-        </form>
-      </section>
-    </main>
+      {wishes.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          <section aria-labelledby="pending-title" className="mt-[22px]">
+            <h2 id="pending-title" className="sr-only">
+              Still thinking about
+            </h2>
+            {pending.length > 0 ? (
+              <WishGrid>
+                {pending.map((wish) => (
+                  <li key={wish.id}>
+                    <WishCard wish={wish} />
+                  </li>
+                ))}
+              </WishGrid>
+            ) : (
+              <p className="text-[13px] leading-[1.45] text-ink-muted">
+                Nothing pending. Everything here has been decided.
+              </p>
+            )}
+          </section>
+
+          {history.length > 0 && (
+            <section aria-labelledby="history-title" className="mt-9 border-t pt-6">
+              <div className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
+                <h2
+                  id="history-title"
+                  className="text-[15px] leading-[1.2] font-semibold tracking-[-0.015em] text-ink"
+                >
+                  History
+                </h2>
+                <p className="text-[12.5px] leading-[1.3] text-ink-muted">
+                  {countInWords(history.length, true)} {plural(history.length, "decision", "decisions")}{" "}
+                  you&apos;ve already made.
+                </p>
+              </div>
+              <ul className="mt-4 grid gap-3.5 lg:grid-cols-2">
+                {history.map((wish) => (
+                  <li key={wish.id}>
+                    <HistoryCard wish={wish} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
+      )}
+    </>
   );
 }

@@ -5,6 +5,8 @@ const db = vi.hoisted(() => {
     wish: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
+      groupBy: vi.fn(),
+      count: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       deleteMany: vi.fn(),
@@ -82,6 +84,31 @@ describe("ownership scoping", () => {
       expect.objectContaining({ where: { wishId: "w-other", wish: { userId: USER } } }),
     );
     expect(db.wishStatusChange.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("getWishStats", () => {
+  it("counts the caller's wishes by status and long waits", async () => {
+    db.wish.groupBy.mockResolvedValue([
+      { status: "PENDING", _count: { _all: 5 } },
+      { status: "BOUGHT", _count: { _all: 2 } },
+      { status: "REJECTED", _count: { _all: 1 } },
+    ]);
+    db.wish.count.mockResolvedValue(3);
+    const now = new Date("2026-09-11T00:00:00Z");
+
+    expect(await wishes.getWishStats(USER, now)).toEqual({
+      pending: 5,
+      bought: 2,
+      completed: 0,
+      rejected: 1,
+      waitingOverMonth: 3,
+      total: 8,
+    });
+    expect(db.wish.groupBy).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: USER } }));
+    expect(db.wish.count).toHaveBeenCalledWith({
+      where: { userId: USER, status: "PENDING", createdAt: { lt: new Date("2026-08-12T00:00:00Z") } },
+    });
   });
 });
 

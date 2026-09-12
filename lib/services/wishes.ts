@@ -55,6 +55,27 @@ export async function getUserWishes(userId: string) {
   return wishes.map(toView);
 }
 
+export type WishStats = Awaited<ReturnType<typeof getWishStats>>;
+
+export async function getWishStats(userId: string, now = new Date()) {
+  const monthAgo = new Date(now.getTime() - 30 * 86_400_000);
+  const [groups, waitingOverMonth] = await Promise.all([
+    db.wish.groupBy({ by: ["status"], where: { userId }, _count: { _all: true } }),
+    db.wish.count({ where: { userId, status: "PENDING", createdAt: { lt: monthAgo } } }),
+  ]);
+  const count = (status: WishStatusValue) =>
+    groups.find((g) => g.status === status)?._count._all ?? 0;
+
+  const stats = {
+    pending: count("PENDING"),
+    bought: count("BOUGHT"),
+    completed: count("COMPLETED"),
+    rejected: count("REJECTED"),
+    waitingOverMonth,
+  };
+  return { ...stats, total: stats.pending + stats.bought + stats.completed + stats.rejected };
+}
+
 export async function getWish(userId: string, id: string) {
   const wish = await db.wish.findFirst({ where: { id, userId }, include: wishInclude });
   return wish ? toView(wish) : null;

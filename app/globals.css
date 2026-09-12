@@ -70,6 +70,7 @@
   /* §4.8 focus ring */
   --focus: #4f5f9e;
   --focus-halo: rgba(79, 95, 158, 0.18);
+  --shimmer: rgba(16, 19, 23, 0.05);
 
   /* §4.9 note panel — the only warm surface */
   --note-bg: #fbfaf7;
@@ -147,6 +148,7 @@
 
   --focus: #93a6dc;
   --focus-halo: rgba(147, 166, 220, 0.22);
+  --shimmer: rgba(255, 255, 255, 0.05);
 
   --note-bg: #201d1a;
   --note-border: #33302a;
@@ -303,6 +305,23 @@
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 300;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@utility skeleton {
+  background-color: var(--bg-media);
+  background-image: linear-gradient(90deg, transparent, var(--shimmer), transparent);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
 
 @layer base {
